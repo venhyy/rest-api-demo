@@ -14,7 +14,6 @@ class PostController extends Controller
     public function all()
     {
         $posts = Post::orderBy("created_at", "desc")->get(["title", "content", "id", "user_id"]);
-        $posts_appended = array();
 
         foreach ($posts as $post) {
             $user = User::find($post->user_id);
@@ -22,11 +21,10 @@ class PostController extends Controller
                 "name" => $user->name,
                 "email" => $user->email
             ];
-            array_push($posts_appended, $post);
         }
 
         return response()->json([
-            "posts" => $posts_appended
+            "posts" => $posts
         ]);
     }
 
@@ -74,9 +72,7 @@ class PostController extends Controller
             "user_id" => $id
         ]);
 
-        return response()->json([
-            "message" => "Post added"
-        ]);
+        return response()->json(["message" => "Post added"]);
     }
 
     /**
@@ -87,10 +83,15 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $posts = Post::where("id", $post->id)->get(["title", "content", "id", "user_id"]);
+        $user = User::find($post->user_id);
+        $userInfo = [
+            "name" => $user->name,
+            "email" => $user->email
+        ];
+        $post->user = $userInfo;
 
         return response()->json([
-            "post" => $posts
+            "post" => $post
         ]);
     }
 
